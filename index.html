@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sparrow Photography</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦜</text></svg>">
+
+    <style>
+      body {
+        margin: 0 auto;
+        max-width: 50em;
+        width: 88%;
+      }
+
+
+      /**
+       * Grid Layout
+       */
+
+      @media (min-width: 20em) {
+        #photos {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: 1fr;
+          grid-column-gap: 2em;
+          grid-row-gap: 2em;
+        }
+      }
+
+      @media (min-width: 32em) {
+        #photos {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (min-width: 42em) {
+        #photos {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+
+      /**
+       * Nav Menu
+       */
+
+      .nav {
+        padding: 1em 0;
+      }
+
+      .nav a {
+        text-decoration: none;
+      }
+
+      .nav a:focus,
+      .nav a:hover {
+        text-decoration: underline;
+      }
+
+
+      /**
+       * Footer
+       */
+
+      footer {
+        border-top: 1px solid #e5e5e5;
+        margin-top: 5em;
+      }
+
+
+      /**
+       * Responsive images
+       */
+      figure {
+        border: thin #c0c0c0 solid;
+        display: flex;
+        flex-flow: column;
+        padding: 5px;
+        max-width: 220px;
+        margin: auto;
+      }
+
+      figcaption {
+        background-color: #222;
+        color: #fff;
+        font: italic smaller sans-serif;
+        padding: 3px;
+        text-align: center;
+      }
+
+      img {
+        height: auto;
+        max-width: 100%;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <nav class="nav">
+      <a class="logo" href="index.html"><strong>Sparrow Photography</strong></a>
+    </nav>
+
+    <h1>Sparrow Photography</h1>
+
+    <!-- <div id="app">Loading...</div> -->
+    <div id="app">
+      <div class="photo">
+        <div>
+          Photo details
+        </div>
+        <div>
+          Photo details
+        </div>
+        <!-- ... -->
+      </div>
+    </div>
+
+
+    <footer>
+      <p><em>Photos by Jack Sparrow. All rights reserved.</em></p>
+    </footer>
+
+
+    <script defer>
+      const
+        PHOTOS_ENDPOINT = `https://vanillajsacademy.com/api/photos.json`,
+        APP_ROOT = document.getElementById('app')
+
+      const loadPhotos = async () => {
+        // request the data
+        const response = await fetch(PHOTOS_ENDPOINT)
+        // ensure response is good
+        if(!response.status === 200) { throw new Error(`Bad response from photos endpoint`) }
+        // parse the json
+        const photos = await response.json()
+        // render item templates
+        const photoElements = photos.map(photo => `<figure title="${ photo.description }">
+          <img src="${ photo.url }"/>
+          <figcaption>${ photo.name } ($${ photo.price })</figcaption>
+        </figure>`).join('')
+        // render collection template
+        const photoColleciton = `<div id="photos">${ photoElements }</div>`
+        // mount html
+        APP_ROOT.innerHTML = photoColleciton
+      }
+
+      loadPhotos()
+    </script>
+
+  </body>
+</html>
