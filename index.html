@@ -129,21 +129,31 @@
         APP_ROOT = document.getElementById('app')
 
       const loadPhotos = async () => {
-        // request the data
-        const response = await fetch(PHOTOS_ENDPOINT)
-        // ensure response is good
-        if(!response.status === 200) { throw new Error(`Bad response from photos endpoint`) }
-        // parse the json
-        const photos = await response.json()
-        // render item templates
-        const photoElements = photos.map(photo => `<figure title="${ photo.description }">
-          <img src="${ photo.url }"/>
-          <figcaption>${ photo.name } ($${ photo.price })</figcaption>
-        </figure>`).join('')
-        // render collection template
-        const photoColleciton = `<div id="photos">${ photoElements }</div>`
-        // mount html
-        APP_ROOT.innerHTML = photoColleciton
+        try {
+          // request the data
+          const response = await fetch(PHOTOS_ENDPOINT)
+          // ensure response is good
+          if(!response.ok) { throw new Error(`Bad response from photos endpoint`) }
+          // parse the json
+          const photos = await response.json()
+          // ensure photos exist
+          if(!photos.length) { throw new Error(`No photos returned`) }
+          // render item templates
+          const photoElements = photos.map(photo => `<figure title="${ photo.description }">
+            <img src="${ photo.url }"/>
+            <figcaption>${ photo.name } ($${ photo.price })</figcaption>
+          </figure>`).join('')
+          // render collection template
+          const photoColleciton = `<div id="photos">${ photoElements }</div>`
+          // mount html
+          APP_ROOT.innerHTML = photoColleciton
+          // any issues at all, don't care what
+        } catch(error) {
+          // tell the console so devs can work
+          console.warn(error)
+          // say something nice to the end user
+          APP_ROOT.innerHTML = `<p>No photos right now.</p>`
+        }
       }
 
       loadPhotos()
