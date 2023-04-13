@@ -24,24 +24,28 @@
 
 
     <script type="module" defer>
-      import { loadPhotos, renderPhotos } from '/photos.js'
+      import { PHOTO_ID_KEY, loadPhotos, renderPhoto } from '/photos.js'
 
-      const APP_ROOT = document.getElementById('app')
+      const
+        APP_ROOT = document.getElementById('app'),
+        photoId = new URL(window.location.href).searchParams.get(PHOTO_ID_KEY)
 
       // entry point
       ;(async () => {
         try {
-          const photos = await loadPhotos()
-          APP_ROOT.innerHTML = renderPhotos(photos)
+          const
+            photos = await loadPhotos(),
+            photo = photos.find(photo => photo.id === photoId)
+
+          APP_ROOT.innerHTML = renderPhoto(photo)
 
         } catch(error) {
           // tell the console so devs can work
           console.warn(error)
           // say something nice to the end user
-          APP_ROOT.innerHTML = `<p>No photos right now.</p>`
+          APP_ROOT.innerHTML = `<p>Photo with id ${photoId} not available.</p>`
         }
       })()
     </script>
-
   </body>
 </html>
