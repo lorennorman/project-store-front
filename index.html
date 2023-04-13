@@ -77,7 +77,6 @@
         display: flex;
         flex-flow: column;
         padding: 5px;
-        max-width: 220px;
         margin: auto;
       }
 
@@ -113,38 +112,68 @@
 
     <script defer>
       const
+        PHOTO_ID_KEY = 'photo_id',
         PHOTOS_ENDPOINT = `https://vanillajsacademy.com/api/photos.json`,
         APP_ROOT = document.getElementById('app')
 
       const loadPhotos = async () => {
+        // request the data
+        const response = await fetch(PHOTOS_ENDPOINT)
+        // ensure response is good
+        if(!response.ok) { throw new Error(`Bad response from photos endpoint`) }
+        // parse the json
+        const photos = await response.json()
+        // ensure photos exist
+        if(!photos.length) { throw new Error(`No photos returned`) }
+
+        return photos
+      }
+
+      // raw, full-app render
+      const updateApp = content => APP_ROOT.innerHTML = content
+
+      // templates
+      const renderPhoto = ({ name, description, price, url }) =>
+        `<figure title="${ description }">
+          <img src="${ url }"/>
+          <figcaption>${ name } ($${ price })</figcaption>
+        </figure>`
+
+      const renderPhotoLinked = photo =>
+        `<a href="/index.html?${PHOTO_ID_KEY}=${ photo.id }">
+          ${ renderPhoto(photo) }
+        </a>`
+
+      const renderPhotos = photos =>
+        `<div id="photos">
+          ${ photos.map(renderPhotoLinked).join('') }
+        </div>`
+
+      // entry point
+      ;(async () => {
+        const
+          photosReady = loadPhotos(),
+          photoId = new URL(window.location.href).searchParams.get(PHOTO_ID_KEY)
+
         try {
-          // request the data
-          const response = await fetch(PHOTOS_ENDPOINT)
-          // ensure response is good
-          if(!response.ok) { throw new Error(`Bad response from photos endpoint`) }
-          // parse the json
-          const photos = await response.json()
-          // ensure photos exist
-          if(!photos.length) { throw new Error(`No photos returned`) }
-          // render item templates
-          const photoElements = photos.map(photo => `<figure title="${ photo.description }">
-            <img src="${ photo.url }"/>
-            <figcaption>${ photo.name } ($${ photo.price })</figcaption>
-          </figure>`).join('')
-          // render collection template
-          const photoColleciton = `<div id="photos">${ photoElements }</div>`
-          // mount html
-          APP_ROOT.innerHTML = photoColleciton
-          // any issues at all, don't care what
+          const
+            photos = await photosReady,
+            photo = photos.find(photo => photo.id === photoId)
+
+          // router
+          updateApp(photo
+            ? renderPhoto(photo)
+            : photoId
+              ? `<p>No photo with id: ${ photoId }</p>`
+              : renderPhotos(photos))
+
         } catch(error) {
           // tell the console so devs can work
           console.warn(error)
           // say something nice to the end user
-          APP_ROOT.innerHTML = `<p>No photos right now.</p>`
+          updateApp(`<p>No photos right now.</p>`)
         }
-      }
-
-      loadPhotos()
+      })()
     </script>
 
   </body>
