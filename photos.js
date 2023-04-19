@@ -1,12 +1,14 @@
+import { isInCart, addToCart } from './cart.js'
+
 const
   PHOTOS_ENDPOINT = `https://vanillajsacademy.com/api/photos.json`
 
 export const
   PHOTO_ID_KEY = 'photo_id',
 
-  getCachedPhotos = () => JSON.parse(localStorage?.getItem('photos') || '[]'),
+  getCachedPhotos = () => JSON.parse(sessionStorage?.getItem('photos') || 'false'),
 
-  setCachedPhotos = photos => localStorage?.setItem('photos', JSON.stringify(photos)),
+  setCachedPhotos = photos => sessionStorage?.setItem('photos', JSON.stringify(photos)),
 
   loadPhotos = async () => {
     // early out for cache
@@ -29,11 +31,17 @@ export const
   },
 
   // templates
-  renderPhoto = ({ name, description, price, url }) =>
+  renderPhoto = ({ id, name, description, price, url }) =>
     `<figure title="${ description }">
       <img src="${ url }"/>
       <figcaption>${ name } ($${ price })</figcaption>
     </figure>`,
+
+  renderPhotoWithCart = photo => `${renderPhoto(photo)}${renderCartStatus(photo.id)}`,
+
+  renderCartStatus = id => isInCart(id)
+    ? `In Cart`
+    : `<button id="add-to-cart">Add to Cart</button>`,
 
   renderPhotoLinked = photo =>
     `<a href="/photo.html?${PHOTO_ID_KEY}=${ photo.id }">

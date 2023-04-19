@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦜</text></svg>">
 
+    <script src="https://cdn.jsdelivr.net/npm/reefjs@12/dist/reef.min.js"></script>
     <link href="/styles.css" rel="stylesheet">
   </head>
   <body>
@@ -24,7 +25,9 @@
 
 
     <script type="module" defer>
-      import { PHOTO_ID_KEY, loadPhotos, renderPhoto } from '/photos.js'
+      const { render } = reef
+      import { PHOTO_ID_KEY, loadPhotos, renderPhotoWithCart } from '/photos.js'
+      import { addToCart } from '/cart.js'
 
       const
         APP_ROOT = document.getElementById('app'),
@@ -37,13 +40,20 @@
             photos = await loadPhotos(),
             photo = photos.find(photo => photo.id === photoId)
 
-          APP_ROOT.innerHTML = renderPhoto(photo)
+          render(APP_ROOT, renderPhotoWithCart(photo))
+
+          const cartButton = document.querySelector('button#add-to-cart')
+
+          cartButton?.addEventListener('click', event => {
+            addToCart(photo.id)
+            render(APP_ROOT, renderPhotoWithCart(photo))
+          })
 
         } catch(error) {
           // tell the console so devs can work
           console.warn(error)
           // say something nice to the end user
-          APP_ROOT.innerHTML = `<p>Photo with id ${photoId} not available.</p>`
+          render(APP_ROOT, `<p>Photo with id ${photoId} not available.</p>`)
         }
       })()
     </script>
