@@ -30,6 +30,8 @@ export const
     return photos
   },
 
+  findPhoto = id => allPhotos.find(photo => photo.id === id),
+
   // templates
   renderPhoto = ({ id, name, description, price, url }) =>
     `<figure title="${ description }">
@@ -52,3 +54,5 @@ export const
     `<div id="photos">
       ${ photos.map(renderPhotoLinked).join('') }
     </div>`
+
+const allPhotos = await loadPhotos()

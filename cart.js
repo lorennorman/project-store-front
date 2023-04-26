@@ -13,6 +13,13 @@ export const
 
     cartItems.push(id)
     localStorage?.setItem('cart', JSON.stringify(cartItems))
+  },
+
+  removeFromCart = id => {
+    if(!isInCart(id)) { return }
+
+    cartItems.splice(cartItems.indexOf(id), 1)
+    localStorage?.setItem('cart', JSON.stringify(cartItems))
   }
 
 

@@ -19,6 +19,7 @@
 		<h1>Checkout</h1>
 		<div id="app">Loading...</div>
 
+    <div id="notification" aria-live="polite"></div>
 
 		<footer>
 			<p><em>Photos by Jack Sparrow. All rights reserved.</em></p>
@@ -28,15 +29,32 @@
 		<script type="module">
       import { store, component } from 'https://cdn.jsdelivr.net/npm/reefjs@12/dist/reef.es.min.js'
 
-      import { loadPhotos, renderCart } from '/photos.js'
-      import { cartItems } from '/cart.js'
-			// load all photos
-      const allPhotos = await loadPhotos()
+      import { findPhoto } from '/photos.js'
+      import { cartItems, removeFromCart } from '/cart.js'
 
-      component('#app', () => {
+      const appElement = document.querySelector('#app')
+      const notificationElement = document.querySelector('#notification')
+
+      appElement.addEventListener('click', event => {
+        const
+          photoId = event.target.dataset.removeId,
+          photo = findPhoto(photoId)
+
+        if(!photo) { return }
+
+        removeFromCart(photoId)
+
+        notificationElement.textContent = `Removed photo named "${photo.name}"" from your cart`
+        setTimeout(() => {
+          notificationElement.textContent = ''
+        }, 4000)
+
+      })
+
+      component(appElement, () => {
         const cartPhotos = cartItems.map(photoId => {
           // look up photo
-          const photo = allPhotos.find(photo => photo.id === photoId)
+          const photo = findPhoto(photoId)
 
           return photo
           // remove dead items
@@ -46,7 +64,10 @@
         const totalCost = cartPhotos.reduce((sum, { price }) => sum + price, 0)
 
         // render cart item template from cart photos
-        const cartLines = cartPhotos.map(photo => photo && `<li>${ photo.name }</li>`)
+        const cartLines = cartPhotos.map(photo => photo && (
+          `<li>
+            <button data-remove-id="${ photo.id }" aria-label="Remove ${ photo.name } from Cart">Remove</button> ${ photo.name }
+          </li>`))
 
         // render entire cart
         return `<ul>
