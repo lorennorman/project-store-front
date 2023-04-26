@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Checkout | Sparrow Photography</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" type="text/css" href="styles.css">
+	</head>
+	<body>
+
+		<nav class="nav">
+			<a class="logo" href="index.html"><strong>Sparrow Photography</strong></a>
+			<div class="nav-items">
+				<a aria-current="page" href="checkout.html"><span aria-hidden="true">&#x1f6d2;</span> Cart <span id="cart-count"></span></a>
+			</div>
+		</nav>
+
+		<h1>Checkout</h1>
+		<div id="app">Loading...</div>
+
+
+		<footer>
+			<p><em>Photos by Jack Sparrow. All rights reserved.</em></p>
+		</footer>
+
+
+		<script type="module">
+      import { store, component } from 'https://cdn.jsdelivr.net/npm/reefjs@12/dist/reef.es.min.js'
+
+      import { loadPhotos, renderCart } from '/photos.js'
+      import { cartItems } from '/cart.js'
+			// load all photos
+      const allPhotos = await loadPhotos()
+
+      component('#app', () => {
+        const cartPhotos = cartItems.map(photoId => {
+          // look up photo
+          const photo = allPhotos.find(photo => photo.id === photoId)
+
+          return photo
+          // remove dead items
+        }).filter(item => item)
+
+        // calculate total cost from cartPhotos
+        const totalCost = cartPhotos.reduce((sum, { price }) => sum + price, 0)
+
+        // render cart item template from cart photos
+        const cartLines = cartPhotos.map(photo => photo && `<li>${ photo.name }</li>`)
+
+        // render entire cart
+        return `<ul>
+          ${ cartLines.join('') }
+        </ul>
+        <p>Total: $${ totalCost }</p>`
+      })
+		</script>
+
+	</body>
+</html>
